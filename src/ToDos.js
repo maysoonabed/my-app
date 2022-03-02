@@ -5,7 +5,7 @@ import React from "react"
 import Typography from '@mui/material/Typography';
 import ToDoRow from "./ToDoRow"
 
-const toDos = [
+const initialToDos = [
     {
         id: 1,
         title: "To Do 1",
@@ -61,6 +61,20 @@ function TabPanel(props) {
 }
 
 const ToDos = () => {
+    const [toDos,setToDos]=React.useState(initialToDos)
+
+    const handleItemCheckboxClick=(id, newValue)=>{
+const changed=toDos.find(item=>item.id===id)
+
+setToDos(toDos.map((toDo)=>{
+    if (toDo.id!==id) return toDo;
+    return {
+        ...changed,
+        isDone:newValue
+
+    }
+}))
+    }
 
     const [value, setValue] = React.useState(0);
 
@@ -87,7 +101,8 @@ const ToDos = () => {
                     overflowY: 'scroll',
                 }} >
 
-                    {notDone.map(toDo => <ToDoRow title={toDo.title} date={toDo.createdAt} isDone={toDo.isDone} />)}
+{notDone.map(toDo =>
+                        <ToDoRow {...toDo} handleItemCheckboxClick={handleItemCheckboxClick} />)}
 
                 </div>
             </TabPanel>
@@ -97,9 +112,9 @@ const ToDos = () => {
                     overflowY: 'scroll',
                 }} >
                     {
-                        done.map(toDo => <ToDoRow title={toDo.title} date={toDo.createdAt} isDone={toDo.isDone} />
-                        )
-                     }
+                   done.map(toDo => <ToDoRow {...toDo} handleItemCheckboxClick={handleItemCheckboxClick} />
+                    )
+                    }
 
                 </div>
             </TabPanel>
