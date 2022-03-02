@@ -4,46 +4,8 @@ import Tabs from '@mui/material/Tabs';
 import React from "react"
 import Typography from '@mui/material/Typography';
 import ToDoRow from "./ToDoRow"
-
-const initialToDos = [
-    {
-        id: 1,
-        title: "To Do 1",
-        isDone: false,
-        createdAt: new Date(),
-    },
-    {
-        id: 2,
-        title: "To Do 2",
-        isDone: true,
-        createdAt: new Date(),
-    },
-    {
-        id: 3,
-        title: "To Do 3",
-        isDone: false,
-        createdAt: new Date(),
-    },
-    {
-        id: 4,
-        title: "To Do 4",
-        isDone: true,
-        createdAt: new Date(),
-    },
-    {
-        id: 5,
-        title: "To Do 5",
-        isDone: false,
-        createdAt: new Date(),
-    },
-    {
-        id: 6,
-        title: "To Do 6",
-        isDone: false,
-        createdAt: new Date(),
-    }
-]
-
+import TextField from '@mui/material/TextField'
+import Button from '@mui/material/Button'
 
 
 function TabPanel(props) {
@@ -61,19 +23,32 @@ function TabPanel(props) {
 }
 
 const ToDos = () => {
-    const [toDos,setToDos]=React.useState(initialToDos)
+    const [body, setBody] = React.useState("")
 
-    const handleItemCheckboxClick=(id, newValue)=>{
-const changed=toDos.find(item=>item.id===id)
+    const [toDos, setToDos] = React.useState([])
 
-setToDos(toDos.map((toDo)=>{
-    if (toDo.id!==id) return toDo;
-    return {
-        ...changed,
-        isDone:newValue
+    React.useEffect(() => {
 
-    }
-}))
+        const myToDos = localStorage.getItem("myTodos")
+        const parsedToDos = JSON.parse(myToDos)
+        setToDos(parsedToDos)
+    }, [])
+
+
+    const handleItemCheckboxClick = (id, newValue) => {
+        const changedItem = toDos.find(item => item.id === id)
+
+        const modifiedToDos = toDos.map((toDo) => {
+            if (toDo.id !== id) return toDo;
+
+            return {
+                ...changedItem,
+                isDone: newValue
+            }
+        })
+
+        setToDos(modifiedToDos)
+        localStorage.setItem("myTodos", JSON.stringify(modifiedToDos))
     }
 
     const [value, setValue] = React.useState(0);
@@ -81,12 +56,44 @@ setToDos(toDos.map((toDo)=>{
     const done = toDos.filter(todo => todo.isDone)
     const notDone = toDos.filter(todo => !todo.isDone)
 
-     const handleChange = (event, newValue) => {
+
+    const handleChange = (event, newValue) => {
         setValue(newValue);
     };
 
+    
+    const handleBodyChange = (e) => {
+        setBody(e.target.value)
+    }
 
-    return (<div>
+
+    const handleSubmit = () => {
+    const newToDo ={
+         id:new Date().getTime(),
+         title:body,
+         createdAt:new Date(),
+         isDone:false
+     }
+    const modifiedDos =[newToDo,...toDos]
+    setToDos(modifiedDos)
+    localStorage.setItem("myTodos", JSON.stringify(modifiedDos))
+
+
+     setBody("")
+    
+    }
+    return (
+    <div>
+
+  <div>
+  <form className="form"  >
+  <TextField id="outlined-basic" label="To Do" variant="outlined" value={body} onChange={handleBodyChange}/>
+<Button onClick={handleSubmit} variant="contained">Add</Button>
+</form>
+
+
+  </div>
+    <div>
         <Box sx={{ width: '100%' }}>
             <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                 <Tabs value={value} onChange={handleChange} aria-label="basic tabs example" >
@@ -101,7 +108,7 @@ setToDos(toDos.map((toDo)=>{
                     overflowY: 'scroll',
                 }} >
 
-{notDone.map(toDo =>
+                    {notDone.map(toDo =>
                         <ToDoRow {...toDo} handleItemCheckboxClick={handleItemCheckboxClick} />)}
 
                 </div>
@@ -112,15 +119,17 @@ setToDos(toDos.map((toDo)=>{
                     overflowY: 'scroll',
                 }} >
                     {
-                   done.map(toDo => <ToDoRow {...toDo} handleItemCheckboxClick={handleItemCheckboxClick} />
-                    )
+                        done.map(toDo => <ToDoRow {...toDo} handleItemCheckboxClick={handleItemCheckboxClick} />
+                        )
                     }
 
                 </div>
             </TabPanel>
 
         </Box>
-    </div>)
+    </div>
+    </div>
+    )
 }
 
 
